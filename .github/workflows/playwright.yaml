@@ -2,9 +2,9 @@ name: IGN cookie test
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
 
 jobs:
   test:
@@ -21,6 +21,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -29,8 +30,17 @@ jobs:
     - name: Install dependencies
       run: pip install -r requirements.txt
     
-    - name: Ensure browsers are installed
-      run: python -m playwright install --with-deps
+    - name: Cache Playwright Browsers
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ hashFiles('requirements.txt') }}-${{ matrix.browser }}
+        restore-keys: |
+          ${{ runner.os }}-playwright-
+      
+    - name: Ensure ${{ matrix.browser }} is installed ⚙️
+      run: |
+        python -m playwright install ${{ matrix.browser }} --with-deps
       
     - name: Run tests on ${{ matrix.browser }} 🚀
       run: |
