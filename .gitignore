@@ -1,0 +1,37 @@
+# Virtual environment directories
+venv/
+env/
+.venv/
+ENV/
+venv.bak/
+env.bak/
+
+# Pytest
+.pytest_cache/
+__pycache__
+
+# Playwright / browser-related artifacts
+.playwright/
+playwright-report/
+playwright-report/**
+
+# Playwright browser caches (user-level; safe to ignore if browsers are downloaded locally)
+.cache/ms-playwright/
+.cache/playwright/
+playwright/.local-browsers/
+
+# Test artifacts / reports
+test-results/
+reports/
+artifacts/
+
+# IDEs and editor settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# macOS
+.DS_Store
+
+
