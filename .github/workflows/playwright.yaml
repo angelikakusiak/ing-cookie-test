@@ -26,29 +26,39 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+        cache: 'pip'
 
     - name: Install dependencies
-      run: pip install -r requirements.txt
-    
-    - name: Cache Playwright Browsers
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/ms-playwright
-        key: ${{ runner.os }}-playwright-${{ hashFiles('requirements.txt') }}-${{ matrix.browser }}
-        restore-keys: |
-          ${{ runner.os }}-playwright-
-      
-    - name: Ensure ${{ matrix.browser }} is installed ⚙️
       run: |
-        python -m playwright install ${{ matrix.browser }} --with-deps
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Install Playwright and browsers
+      run: python -m playwright install --with-deps
       
     - name: Run tests on ${{ matrix.browser }} 🚀
       run: |
-        pytest --browser=${{ matrix.browser }} --tracing=retain-on-failure
-      
-    - uses: actions/upload-artifact@v4
+        pytest \
+          --browser=${{ matrix.browser }} \
+          --output=test-results \
+          --tracing=retain-on-failure \
+          --video=retain-on-failure \
+          --screenshot=only-on-failure \
+          --html=report.html \
+          --self-contained-html
+
+    - name: Upload Playwright test artifacts (traces, videos)
       if: always()
+      uses: actions/upload-artifact@v4
       with:
-        name: playwright-report-${{ matrix.browser }}
-        path: playwright-report/
-        retention-days: 30
+        name: playwright-artifacts-${{ matrix.browser }}
+        path: test-results/
+        retention-days: 7 
+     
+    - name: Upload HTML test report
+      if: always() # Always run this step
+      uses: actions/upload-artifact@v4
+      with:
+        name: html-report-${{ matrix.browser }}
+        path: report.html
+        retention-days: 7
